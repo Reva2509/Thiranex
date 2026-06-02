@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Revathi V | Full Stack Portfolio</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            scroll-behavior: smooth;
+            transition: background 0.3s, color 0.2s;
+        }
+
+        /* Dark Mode */
+        body.dark {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark .card, body.dark .skill-card, body.dark .project-card, body.dark .cert-card, body.dark .modal-content, body.dark .resume-viewer-container {
+            background: #1e293b;
+            color: #f1f5f9;
+            border-color: #334155;
+        }
+
+        body.dark .navbar {
+            background: #0f172a;
+            border-bottom-color: #334155;
+        }
+
+        body.dark .footer {
+            background: #0f172a;
+            border-top-color: #334155;
+        }
+
+        /* Smooth container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        body.dark .navbar {
+            background: rgba(15,23,42,0.9);
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 500;
+            color: inherit;
+            transition: 0.2s;
+        }
+        .nav-links a:hover {
+            color: #3b82f6;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: inherit;
+        }
+        /* hero */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            padding: 4rem 0;
+        }
+        .hero-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hero-content {
+            flex: 1;
+        }
+        .hero-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+        }
+        .typed-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #3b82f6;
+            min-height: 4rem;
+        }
+        .hero-desc {
+            margin: 1.5rem 0;
+            line-height: 1.6;
+            color: #334155;
+        }
+        body.dark .hero-desc {
+            color: #cbd5e1;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 8px 20px rgba(59,130,246,0.3);
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            border: 1px solid #3b82f6;
+            background: transparent;
+            color: #3b82f6;
+        }
+        .btn-outline:hover {
+            background: #3b82f610;
+        }
+        .hero-image {
+            flex: 0.8;
+            text-align: center;
+        }
+        .profile-circle {
+            width: 280px;
+            height: 280px;
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+        }
+        .profile-circle span {
+            font-size: 6rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Section styling */
+        section {
+            padding: 5rem 0;
+        }
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 4px;
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        /* skills grid */
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+        .skill-card {
+            background: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+        .skill-card i {
+            margin-right: 8px;
+            color: #3b82f6;
+        }
+
+        /* projects */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .project-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eef2ff;
+        }
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.12);
+        }
+        .project-img {
+            height: 180px;
+            background: linear-gradient(145deg, #2563eb, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        .project-info {
+            padding: 1.5rem;
+        }
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .tech-tag {
+            background: #eef2ff;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .project-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .project-links a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* certifications */
+        .certs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+        .cert-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.2rem;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cert-card i {
+            font-size: 2rem;
+            color: #f59e0b;
+        }
+        .cert-card h4 {
+            margin: 0.8rem 0 0.4rem;
+        }
+
+        /* Resume Modal & viewer */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 1000px;
+            height: 85vh;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .modal-header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            background: #f1f5f9;
+            border-bottom: 1px solid #ddd;
+        }
+        .modal-body {
+            flex: 1;
+            overflow: auto;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .close-modal {
+            cursor: pointer;
+            font-size: 1.8rem;
+        }
+        .resume-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* contact form */
+        .contact-form {
+            max-width: 600px;
+            background: white;
+            padding: 2rem;
+            border-radius: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+        }
+        body.dark .contact-form {
+            background: #1e293b;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-family: inherit;
+        }
+        button[type="submit"] {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 40px;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+        .social-icons a {
+            color: inherit;
+            font-size: 1.5rem;
+            margin: 0 10px;
+            transition: 0.2s;
+        }
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #a855f7);
+            z-index: 1100;
+            transition: width 0.1s;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #3b82f6;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: 0.2s;
+            z-index: 100;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .typed-text { font-size: 1.3rem; }
+            .nav-links { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgress"></div>
+<div class="navbar">
+    <div class="nav-container">
+        <div class="logo">Revathi.dev</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#certifications">Certifications</a>
+            <a href="#contact">Contact</a>
+            <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- Hero Section -->
+<section id="home" class="hero">
+    <div class="container hero-grid">
+        <div class="hero-content">
+            <span class="hero-badge"><i class="fas fa-code"></i> Full Stack Developer</span>
+            <h1>Hi, I'm Revathi V 👋</h1>
+            <div class="typed-text" id="typedText"></div>
+            <p class="hero-desc">Second-year Computer Science and Engineering student at R.M.D Engineering College with strong interest in mathematics, logical thinking, and problem-solving. Skilled in Java, Python, C++, and modern web technologies. Passionate about developing innovative software solutions.</p>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="viewResumeBtn"><i class="fas fa-file-alt"></i> View Resume</button>
+                <button class="btn btn-outline" id="downloadResumeBtn"><i class="fas fa-download"></i> Download Resume</button>
+                <a href="#projects" class="btn btn-outline"><i class="fas fa-arrow-right"></i> Projects</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="profile-circle">
+                <span>RV</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About condensed + Skills -->
+<section id="skills">
+    <div class="container">
+        <h2 class="section-title">Technical Arsenal</h2>
+        <div class="skills-grid" id="skillsContainer"></div>
+        
+        <h2 class="section-title" style="margin-top: 3rem;">Education Timeline</h2>
+        <div class="card" style="background: white; border-radius: 28px; padding: 1.5rem; margin-top: 1rem;">
+            <h3>🎓 R.M.D Engineering College, Chennai</h3>
+            <p>Bachelor of Engineering – Computer Science and Engineering | Aug 2024 – May 2028</p>
+            <p><strong>CGPA:</strong> Pursuing · Strong academic record with focus on DSA, Web Dev, AI</p>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Section (dynamic but static demo with real content) -->
+<section id="projects">
+    <div class="container">
+        <h2 class="section-title">Featured Projects</h2>
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Projects will be injected from JS (including CropCare & FamFit) -->
+        </div>
+    </div>
+</section>
+
+<!-- Certifications -->
+<section id="certifications">
+    <div class="container">
+        <h2 class="section-title">Certifications & Credentials</h2>
+        <div class="certs-grid" id="certsGrid"></div>
+    </div>
+</section>
+
+<!-- Contact Form -->
+<section id="contact">
+    <div class="container">
+        <h2 class="section-title">Let's Connect</h2>
+        <div class="contact-form" id="contactFormDiv">
+            <form id="contactForm">
+                <div class="form-group"><input type="text" placeholder="Your Name" id="contactName" required></div>
+                <div class="form-group"><input type="email" placeholder="Email Address" id="contactEmail" required></div>
+                <div class="form-group"><input type="text" placeholder="Subject" id="contactSubject"></div>
+                <div class="form-group"><textarea rows="4" placeholder="Your message..." id="contactMsg" required></textarea></div>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Send Message</button>
+                <div id="formFeedback" style="margin-top: 12px; font-size:0.9rem;"></div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="social-icons">
+        <a href="https://github.com/Reva2509" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="http://www.linkedin.com/in/revathi-velu-1b9813331" target="_blank"><i class="fab fa-linkedin"></i></a>
+        <a href="mailto:rekhavelu2020@gmail.com"><i class="fas fa-envelope"></i></a>
+    </div>
+    <p style="margin-top: 1rem;">© 2026 Revathi V | Built with HTML/CSS/JS | Full-Stack Portfolio</p>
+</footer>
+
+<!-- Resume Modal (PDF viewer) -->
+<div id="resumeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <strong><i class="fas fa-file-pdf"></i> Revathi V - Resume</strong>
+            <div class="resume-buttons">
+                <button id="modalDownloadBtn" class="btn btn-outline" style="padding: 0.3rem 1rem;"><i class="fas fa-download"></i> Download</button>
+                <span class="close-modal" id="closeModalBtn">&times;</span>
+            </div>
+        </div>
+        <div class="modal-body">
+            <iframe id="resumeIframe" src=""></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- TYPING ANIMATION ----------
+    const roles = ["Computer Science & Engineering Student", "Full Stack Developer", "Problem Solver & Tech Enthusiast"];
+    let roleIndex = 0, charIndex = 0;
+    const typedElement = document.getElementById("typedText");
+    function typeEffect() {
+        if (charIndex <= roles[roleIndex].length) {
+            typedElement.textContent = roles[roleIndex].substring(0, charIndex);
+            charIndex++;
+            setTimeout(typeEffect, 100);
+        } else {
+            setTimeout(() => {
+                roleIndex = (roleIndex + 1) % roles.length;
+                charIndex = 0;
+                typeEffect();
+            }, 2000);
+        }
+    }
+    typeEffect();
+
+    // ---------- SKILLS DATA ----------
+    const skills = {
+        "Languages": ["Java", "Python", "C++", "JavaScript", "SQL"],
+        "Frontend": ["HTML5", "CSS3", "React.js"],
+        "Backend": ["Node.js", "Flask"],
+        "Database": ["PostgreSQL", "MongoDB"],
+        "Libraries": ["Pandas", "NumPy", "Matplotlib"],
+        "Tools": ["Git", "Docker", "Google Cloud Platform", "VS Code", "Eclipse"]
+    };
+    const skillsContainer = document.getElementById("skillsContainer");
+    for (let category in skills) {
+        const catDiv = document.createElement("div");
+        catDiv.style.width = "100%";
+        catDiv.innerHTML = `<h3 style="margin: 1rem 0 0.5rem 0;">📌 ${category}</h3><div style="display:flex; flex-wrap:wrap; gap:0.8rem;">`;
+        skills[category].forEach(skill => {
+            catDiv.innerHTML += `<div class="skill-card"><i class="fas fa-code"></i> ${skill}</div>`;
+        });
+        catDiv.innerHTML += `</div>`;
+        skillsContainer.appendChild(catDiv);
+    }
+
+    // ---------- PROJECTS (from resume) ----------
+    const projectsData = [
+        {
+            title: "CropCare",
+            tech: ["Python", "React", "HTML", "CSS"],
+            desc: "Web application helping farmers monitor crop conditions and detect plant diseases through image uploads. Provides disease prevention & organic fertilizer suggestions.",
+            github: "https://github.com/Reva2509/cropcare",
+            demo: "#"
+        },
+        {
+            title: "FamFit",
+            tech: ["HTML", "CSS", "JavaScript"],
+            desc: "Elderly medicine reminder application to manage daily medication schedules with timely notifications, user-friendly interface for accessibility.",
+            github: "https://github.com/Reva2509/famfit",
+            demo: "#"
+        }
+    ];
+    const projectsGrid = document.getElementById("projectsGrid");
+    function renderProjects() {
+        projectsGrid.innerHTML = "";
+        projectsData.forEach(proj => {
+            const card = document.createElement("div");
+            card.className = "project-card";
+            card.innerHTML = `
+                <div class="project-img"><i class="fas fa-leaf"></i></div>
+                <div class="project-info">
+                    <h3>${proj.title}</h3>
+                    <p>${proj.desc}</p>
+                    <div class="project-tech">${proj.tech.map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
+                    <div class="project-links">
+                        <a href="${proj.github}" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="${proj.demo}" target="_blank"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                    </div>
+                </div>
+            `;
+            projectsGrid.appendChild(card);
+        });
+    }
+    renderProjects();
+
+    // ---------- CERTIFICATIONS ----------
+    const certsList = [
+        { name: "NPTEL: Soft Skill Development", issuer: "NPTEL", icon: "fa-certificate" },
+        { name: "Programming in Java (NPTEL)", issuer: "NPTEL", icon: "fa-java" },
+        { name: "ReactJS - Infosys Springboard", issuer: "Infosys", icon: "fa-react" },
+        { name: "Oracle Cloud Infrastructure 2025 Certified AI Foundations Associate", issuer: "Oracle", icon: "fa-cloud" },
+        { name: "Deloitte Australia - Data Analytics Job Simulation", issuer: "Deloitte", icon: "fa-chart-line" }
+    ];
+    const certsGrid = document.getElementById("certsGrid");
+    certsList.forEach(cert => {
+        const certDiv = document.createElement("div");
+        certDiv.className = "cert-card";
+        certDiv.innerHTML = `<i class="fab ${cert.icon.includes('react') ? 'fa-react' : cert.icon === 'fa-java' ? 'fa-java' : 'fa-certificate'}"></i>
+                            <h4>${cert.name}</h4>
+                            <p>${cert.issuer}</p>
+                            <span style="font-size:0.8rem;color:#3b82f6;"><i class="fas fa-eye"></i> Preview (demo)</span>`;
+        certDiv.addEventListener("click", () => {
+            alert(`📜 Certificate Preview: ${cert.name}\n(Full PDF viewer would open here in production. Implemented resume modal similar) `);
+        });
+        certsGrid.appendChild(certDiv);
+    });
+
+    // ---------- RESUME LOGIC (PDF generation from the data) ----------
+    // We'll create a Blob PDF dynamically from resume content to simulate full Resume viewer and download
+    // Since we don't have actual pdf file, we generate an HTML-styled PDF representation that matches Revathi's resume.
+    function generateResumeHTML() {
+        return `<!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>Revathi V - Resume</title><style>
+            body { font-family: 'Inter', sans-serif; margin: 2rem; line-height:1.4; background:white; color:#111; }
+            .resume-container { max-width: 800px; margin:auto; border:1px solid #ccc; padding:2rem; border-radius:20px; }
+            h1 { color:#2563eb; } .section { margin: 1.5rem 0; } .flex { display:flex; justify-content:space-between; }
+            hr { margin:1rem 0; } .skill-tag { display:inline-block; background:#eef2ff; padding:2px 8px; border-radius:20px; margin:3px; }
+        </style></head>
+        <body>
+        <div class="resume-container">
+        <h1>Revathi V</h1>
+        <p><strong>Computer Science & Engineering Student | Full Stack Developer</strong><br>
+        📞 9445672344 | ✉️ rekhavelu2020@gmail.com | 🔗 linkedin.com/in/revathi-velu-1b9813331 | 🐙 github.com/Reva2509</p>
+        <hr>
+        <div class="section"><h2>🎓 Education</h2><p><strong>R.M.D Engineering College, Chennai</strong> — BE Computer Science and Engineering (Aug 2024 – May 2028)</p></div>
+        <div class="section"><h2>📜 Certifications</h2><ul><li>NPTEL: Soft Skill Development, Programming in Java</li><li>Infosys Springboard: ReactJS</li><li>Oracle Cloud Infrastructure 2025 Certified AI Foundations Associate</li><li>Deloitte Australia - Data Analytics Job Simulation</li></ul></div>
+        <div class="section"><h2>💼 Projects</h2><p><strong>CropCare</strong> (Python, React, HTML/CSS) — Disease detection web app for farmers.<br><strong>FamFit</strong> (HTML, CSS, JS) — Elderly medicine reminder with notifications.</p></div>
+        <div class="section"><h2>⚙️ Technical Skills</h2><p>Java, Python, C++, SQL, JavaScript, React, Node.js, Flask, Git, Docker, Pandas, NumPy, Matplotlib, GCP, VS Code.</p></div>
+        <div class="section"><h2>📌 Summary</h2><p>Second-year CSE student with strong analytical thinking, problem-solving, and enthusiasm for building impactful software solutions.</p></div>
+        </div></body></html>`;
+    }
+
+    function getResumeBlob() {
+        const htmlContent = generateResumeHTML();
+        return new Blob([htmlContent], { type: 'application/pdf' });
+    }
+    // actually we use data:application/pdf? we'll make an object url for iframe to show html styled as pdf? better to embed HTML inside iframe.
+    function showResumeInModal() {
+        const iframe = document.getElementById("resumeIframe");
+        const blobHtml = generateResumeHTML();
+        const blob = new Blob([blobHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        iframe.src = url;
+        document.getElementById("resumeModal").style.display = "flex";
+        // store url for later cleanup?
+        iframe.onload = () => URL.revokeObjectURL(url);
+    }
+
+    function downloadResumePDF() {
+        const htmlForPrint = generateResumeHTML();
+        const win = window.open();
+        win.document.write(htmlForPrint);
+        win.document.close();
+        win.print(); // print -> save as PDF, works across browsers as download option.
+        // Alternatively, we can also trigger a download via html2canvas? but print is native and saves PDF.
+    }
+    
+    // attach events
+    document.getElementById("viewResumeBtn").addEventListener("click", showResumeInModal);
+    document.getElementById("downloadResumeBtn").addEventListener("click", downloadResumePDF);
+    document.getElementById("modalDownloadBtn").addEventListener("click", () => {
+        downloadResumePDF();
+    });
+    document.getElementById("closeModalBtn").addEventListener("click", () => {
+        document.getElementById("resumeModal").style.display = "none";
+        document.getElementById("resumeIframe").src = "";
+    });
+    window.onclick = (e) => {
+        if (e.target === document.getElementById("resumeModal")) {
+            document.getElementById("resumeModal").style.display = "none";
+            document.getElementById("resumeIframe").src = "";
+        }
+    };
+
+    // DARK MODE
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        const icon = themeToggle.querySelector("i");
+        if (document.body.classList.contains("dark")) {
+            icon.classList.remove("fa-moon");
+            icon.classList.add("fa-sun");
+        } else {
+            icon.classList.remove("fa-sun");
+            icon.classList.add("fa-moon");
+        }
+    });
+
+    // Scroll progress
+    window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - window.innerHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById("scrollProgress").style.width = scrolled + "%";
+    });
+    // Back to top button manually added.
+    const backBtn = document.createElement("div");
+    backBtn.className = "back-to-top";
+    backBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    document.body.appendChild(backBtn);
+    backBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 400) backBtn.style.opacity = "1";
+        else backBtn.style.opacity = "0";
+    });
+    // Contact form dummy storage & alert (no backend, but shows success)
+    const contactForm = document.getElementById("contactForm");
+    const feedback = document.getElementById("formFeedback");
+    contactForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("contactName").value;
+        const email = document.getElementById("contactEmail").value;
+        const msg = document.getElementById("contactMsg").value;
+        if(name && email && msg) {
+            feedback.innerHTML = "<span style='color:green;'><i class='fas fa-check-circle'></i> Message sent! (Demo mode - connected to console)</span>";
+            console.log("Contact message:", {name, email, subject: document.getElementById("contactSubject").value, msg});
+            contactForm.reset();
+            setTimeout(() => feedback.innerHTML = "", 3000);
+        } else {
+            feedback.innerHTML = "<span style='color:red;'>Please fill all required fields.</span>";
+        }
+    });
+    // Make all images dummy but functional; for projects images we used icon bg.
+    // visitor counter mock (simple localStorage)
+    if(!localStorage.getItem("visitorCount")) localStorage.setItem("visitorCount", 0);
+    let count = parseInt(localStorage.getItem("visitorCount")) + 1;
+    localStorage.setItem("visitorCount", count);
+    const footerDiv = document.querySelector(".footer p");
+    footerDiv.innerHTML = `© 2026 Revathi V | Built with HTML/CSS/JS | 🧑‍💻 Visitor #${count} <br> <span style="font-size:0.8rem;">Full-Stack Portfolio with Resume Viewer + Download</span>`;
+    
+    // Initial theme icon
+    if(document.body.classList.contains("dark")) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    else themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+</script>
+</body>
+</html>
