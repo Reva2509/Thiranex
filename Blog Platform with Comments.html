@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>BlogStack · single‑file platform</title>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ----- RESET & BASE ----- */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Roboto, system-ui, sans-serif; }
+    body { background: #f4f7fc; color:#1e293b; transition: background 0.3s, color 0.2s; }
+    body.dark { background:#0f172a; color:#e2e8f0; }
+    a { text-decoration:none; color:inherit; }
+    button { cursor:pointer; border:none; background:transparent; }
+    img { max-width:100%; display:block; }
+
+    /* ----- GLASS & CARDS ----- */
+    .glass { background: rgba(255,255,255,0.4); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:28px; box-shadow:0 12px 30px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.3); }
+    .dark .glass { background: rgba(30,41,59,0.5); border-color: rgba(255,255,255,0.08); box-shadow:0 12px 30px rgba(0,0,0,0.4); }
+    .card { background: rgba(255,255,255,0.7); backdrop-filter:blur(4px); border-radius:24px; padding:1.5rem; transition:0.25s; border:1px solid rgba(255,255,255,0.3); }
+    .dark .card { background: rgba(30,41,59,0.6); border-color: rgba(255,255,255,0.05); }
+    .card:hover { transform:translateY(-4px); box-shadow:0 20px 35px -8px rgba(0,0,0,0.1); }
+
+    /* ----- LAYOUT & NAV ----- */
+    .container { max-width:1320px; margin:0 auto; padding:0 1.5rem; }
+    nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:0.8rem 0; }
+    .logo { font-size:1.8rem; font-weight:700; letter-spacing:-0.5px; background:linear-gradient(145deg,#2563eb,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .nav-links { display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; }
+    .nav-links a { font-weight:500; padding:0.3rem 0.2rem; border-bottom:2px solid transparent; transition:0.2s; }
+    .nav-links a:hover { border-bottom-color:#2563eb; }
+    .mobile-toggle { display:none; font-size:1.8rem; }
+    @media (max-width:800px) { .mobile-toggle { display:block; } .nav-links { display:none; width:100%; flex-direction:column; gap:0.8rem; padding:1.2rem 0; } .nav-links.open { display:flex; } }
+
+    /* HERO */
+    .hero { padding:3rem 0 2.5rem; text-align:center; background:linear-gradient(135deg,#dbeafe20,#c7d2fe20); border-radius:48px; margin:1.5rem 0; }
+    .hero h1 { font-size:2.8rem; font-weight:700; background:linear-gradient(135deg,#2563eb,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .hero p { font-size:1.2rem; opacity:0.8; margin-top:0.5rem; }
+
+    /* GRID */
+    .grid-3 { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1.8rem; }
+    .grid-2 { display:grid; grid-template-columns:2fr 1fr; gap:2rem; }
+    @media (max-width:800px) { .grid-2 { grid-template-columns:1fr; } }
+
+    /* FORMS */
+    input, textarea, select { width:100%; padding:0.7rem 1rem; border-radius:40px; border:1px solid #d1d5db; background:rgba(255,255,255,0.5); backdrop-filter:blur(2px); font-size:1rem; transition:0.2s; }
+    .dark input, .dark textarea, .dark select { background:rgba(15,23,42,0.6); border-color:#334155; color:#e2e8f0; }
+    input:focus, textarea:focus { outline:2px solid #2563eb; border-color:transparent; }
+    .btn { display:inline-block; padding:0.6rem 1.6rem; border-radius:60px; font-weight:600; transition:0.2s; background:#2563eb; color:white; border:none; }
+    .btn:hover { background:#1d4ed8; transform:scale(0.97); }
+    .btn-outline { background:transparent; border:1.5px solid #2563eb; color:#2563eb; }
+    .btn-outline:hover { background:#2563eb; color:white; }
+    .btn-danger { background:#dc2626; }
+    .btn-danger:hover { background:#b91c1c; }
+
+    /* BLOG CARD */
+    .blog-card .blog-img { height:180px; background:#cbd5e1; border-radius:20px; object-fit:cover; width:100%; }
+    .blog-card h3 { margin:0.8rem 0 0.3rem; }
+    .meta { font-size:0.8rem; opacity:0.7; display:flex; gap:1rem; flex-wrap:wrap; }
+    .tag { background:#e2e8f0; padding:0.2rem 1rem; border-radius:30px; font-size:0.7rem; }
+    .dark .tag { background:#334155; }
+
+    /* TOAST */
+    .toast-container { position:fixed; bottom:20px; right:20px; z-index:999; display:flex; flex-direction:column; gap:8px; }
+    .toast { background:rgba(0,0,0,0.8); backdrop-filter:blur(6px); color:#fff; padding:0.8rem 1.8rem; border-radius:60px; font-weight:500; animation:slideUp 0.3s ease; }
+    .toast.info { background:#2563eb; }
+    .toast.success { background:#16a34a; }
+    .toast.error { background:#dc2626; }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    /* BACK TO TOP */
+    #backTop { position:fixed; bottom:80px; right:20px; background:#2563eb; color:white; padding:0.6rem 1rem; border-radius:60px; box-shadow:0 8px 20px rgba(37,99,235,0.3); display:none; }
+    #backTop.show { display:block; }
+
+    /* DARK MODE TOGGLE */
+    .theme-toggle { font-size:1.4rem; background:rgba(255,255,255,0.2); border-radius:60px; padding:0.2rem 0.9rem; }
+
+    /* extra */
+    .flex { display:flex; gap:0.8rem; flex-wrap:wrap; align-items:center; }
+    .mt-2 { margin-top:1.5rem; }
+    .mb-1 { margin-bottom:1rem; }
+    .text-center { text-align:center; }
+    .hidden { display:none !important; }
+
+    /* comment */
+    .comment { padding:0.8rem 0; border-bottom:1px solid #e2e8f0; }
+    .dark .comment { border-color:#334155; }
+    .comment-actions { display:flex; gap:0.8rem; font-size:0.8rem; }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <!-- NAV -->
+    <nav>
+      <span class="logo"><i class="fas fa-pen-fancy"></i> BlogStack</span>
+      <div class="mobile-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+      <div class="nav-links" id="navLinks">
+        <a href="#" data-page="home"><i class="fas fa-home"></i> Home</a>
+        <a href="#" data-page="create"><i class="fas fa-plus-circle"></i> New Post</a>
+        <a href="#" data-page="dashboard"><i class="fas fa-user-circle"></i> Dashboard</a>
+        <a href="#" data-page="admin" id="adminLink" class="hidden"><i class="fas fa-shield-alt"></i> Admin</a>
+        <span id="authLinks">
+          <a href="#" data-page="login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <a href="#" data-page="register" id="registerBtn"><i class="fas fa-user-plus"></i> Register</a>
+        </span>
+        <span id="userBadge" class="hidden"><i class="fas fa-user"></i> <span id="currentUserDisplay"></span> <button id="logoutBtn" class="btn btn-outline" style="padding:0.2rem 1rem;">Logout</button></span>
+        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+      </div>
+    </nav>
+
+    <!-- PAGES -->
+    <div id="pageContent"></div>
+
+    <!-- BACK TO TOP -->
+    <button id="backTop"><i class="fas fa-arrow-up"></i> Top</button>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ##############################################
+    //  DATA LAYER (localStorage)
+    // ##############################################
+    const DB = {
+      get(key) { return JSON.parse(localStorage.getItem(key)) || []; },
+      set(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
+      // helpers
+      users() { return this.get('users'); },
+      blogs() { return this.get('blogs'); },
+      comments() { return this.get('comments'); },
+      likes() { return this.get('likes'); },
+      bookmarks() { return this.get('bookmarks'); },
+      saveUsers(u) { this.set('users', u); },
+      saveBlogs(b) { this.set('blogs', b); },
+      saveComments(c) { this.set('comments', c); },
+      saveLikes(l) { this.set('likes', l); },
+      saveBookmarks(b) { this.set('bookmarks', b); }
+    };
+
+    // ##############################################
+    //  SEED DATA
+    // ##############################################
+    function seedData() {
+      if (DB.users().length) return;
+      const users = [
+        { id: 'u1', name: 'Admin', email: 'admin@blog.com', password: 'admin123', role: 'admin' },
+        { id: 'u2', name: 'Alice', email: 'alice@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u3', name: 'Bob', email: 'bob@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u4', name: 'Carol', email: 'carol@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u5', name: 'Dave', email: 'dave@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u6', name: 'Eve', email: 'eve@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u7', name: 'Frank', email: 'frank@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u8', name: 'Grace', email: 'grace@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u9', name: 'Henry', email: 'henry@demo.com', password: 'Pass123!', role: 'user' },
+        { id: 'u10', name: 'Ivy', email: 'ivy@demo.com', password: 'Pass123!', role: 'user' }
+      ];
+      DB.saveUsers(users);
+
+      const categories = ['Technology','Programming','AI','Business','Education','Lifestyle','Travel'];
+      const blogs = [];
+      const comments = [];
+      const now = Date.now();
+      for (let i=1;i<=20;i++) {
+        const cat = categories[i%categories.length];
+        const author = users[i%users.length];
+        blogs.push({
+          id: 'b'+i,
+          title: `Blog post ${i}: ${cat} insights`,
+          category: cat,
+          image: `https://picsum.photos/seed/${i}/600/300`,
+          description: `Short desc for blog ${i}`,
+          content: `Full content of blog ${i}. `.repeat(20),
+          tags: [cat, 'trending', '2025'],
+          authorId: author.id,
+          authorName: author.name,
+          date: new Date(now - i*86400000).toISOString(),
+          likes: 0
+        });
+      }
+      DB.saveBlogs(blogs);
+
+      for (let i=1;i<=50;i++) {
+        const blog = blogs[i%blogs.length];
+        const user = users[i%users.length];
+        comments.push({
+          id: 'c'+i,
+          blogId: blog.id,
+          userId: user.id,
+          username: user.name,
+          text: `Comment ${i} by ${user.name}`,
+          date: new Date(now - i*3600000).toISOString(),
+          parentId: null
+        });
+      }
+      DB.saveComments(comments);
+      DB.saveLikes([]);
+      DB.saveBookmarks([]);
+    }
+
+    // ##############################################
+    //  STATE & HELPERS
+    // ##############################################
+    let currentUser = null;
+    let currentPage = 'home';
+
+    function toast(msg, type='info') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(()=> t.remove(), 2800);
+    }
+
+    function getUsers() { return DB.users(); }
+    function getBlogs() { return DB.blogs(); }
+    function getComments() { return DB.comments(); }
+    function getLikes() { return DB.likes(); }
+    function getBookmarks() { return DB.bookmarks(); }
+    function saveUsers(u) { DB.saveUsers(u); }
+    function saveBlogs(b) { DB.saveBlogs(b); }
+    function saveComments(c) { DB.saveComments(c); }
+    function saveLikes(l) { DB.saveLikes(l); }
+    function saveBookmarks(b) { DB.saveBookmarks(b); }
+
+    function findUser(email) { return getUsers().find(u=>u.email===email); }
+    function findBlog(id) { return getBlogs().find(b=>b.id===id); }
+    function currentUserObj() { return currentUser ? findUser(currentUser.email) : null; }
+
+    // ##############################################
+    //  RENDER ENGINE
+    // ##############################################
+    function render(page, data) {
+      const container = document.getElementById('pageContent');
+      currentPage = page;
+      if (page === 'home') container.innerHTML = renderHome();
+      else if (page === 'login') container.innerHTML = renderLogin();
+      else if (page === 'register') container.innerHTML = renderRegister();
+      else if (page === 'create') container.innerHTML = renderCreateEdit(data);
+      else if (page === 'edit') container.innerHTML = renderCreateEdit(data);
+      else if (page === 'dashboard') container.innerHTML = renderDashboard();
+      else if (page === 'admin') container.innerHTML = renderAdmin();
+      else if (page === 'blogDetail') container.innerHTML = renderBlogDetail(data);
+      else container.innerHTML = '<h2>Page not found</h2>';
+      updateNav();
+      attachEventListeners();
+    }
+
+    // ##############################################
+    //  PAGE RENDERERS
+    // ##############################################
+    function renderHome() {
+      const blogs = getBlogs().slice(0,6);
+      const cats = ['Technology','Programming','AI','Business','Education','Lifestyle','Travel'];
+      return `
+        <div class="hero glass">
+          <h1><i class="fas fa-blog"></i> Discover stories</h1>
+          <p>Read, write & share — all in one place</p>
+          <div style="max-width:400px;margin:1.2rem auto;display:flex;gap:0.5rem;">
+            <input type="text" id="searchInput" placeholder="Search title, author, category..." style="flex:1;">
+            <button class="btn" id="searchBtn"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+          ${cats.map(c=>`<span class="tag" style="cursor:pointer;" data-cat="${c}">${c}</span>`).join('')}
+        </div>
+        <h2><i class="fas fa-fire"></i> Latest posts</h2>
+        <div class="grid-3 mt-2">
+          ${blogs.map(b=>blogCard(b)).join('')}
+        </div>
+      `;
+    }
+
+    function blogCard(blog) {
+      return `
+        <div class="card blog-card" data-id="${blog.id}">
+          <img src="${blog.image || 'https://picsum.photos/seed/default/600/300'}" class="blog-img" alt="blog image">
+          <h3>${blog.title}</h3>
+          <div class="meta"><span><i class="fas fa-user"></i> ${blog.authorName}</span><span><i class="fas fa-calendar"></i> ${new Date(blog.date).toLocaleDateString()}</span></div>
+          <div class="meta"><span class="tag">${blog.category}</span> ${blog.tags?.slice(0,2).map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
+          <p style="margin:0.5rem 0;">${blog.description || 'Click read more...'}</p>
+          <button class="btn readMoreBtn" data-id="${blog.id}">Read More <i class="fas fa-arrow-right"></i></button>
+        </div>
+      `;
+    }
+
+    function renderLogin() {
+      return `
+        <div class="glass" style="max-width:420px;margin:3rem auto;padding:2rem;">
+          <h2>Welcome back</h2>
+          <form id="loginForm">
+            <div class="mb-1"><input type="email" id="loginEmail" placeholder="Email" required></div>
+            <div class="mb-1"><input type="password" id="loginPassword" placeholder="Password" required></div>
+            <button class="btn" style="width:100%;">Login</button>
+          </form>
+          <p style="margin-top:1rem;">Demo: admin@blog.com / admin123</p>
+        </div>
+      `;
+    }
+
+    function renderRegister() {
+      return `
+        <div class="glass" style="max-width:420px;margin:3rem auto;padding:2rem;">
+          <h2>Create account</h2>
+          <form id="registerForm">
+            <div class="mb-1"><input type="text" id="regName" placeholder="Full name" required></div>
+            <div class="mb-1"><input type="email" id="regEmail" placeholder="Email" required></div>
+            <div class="mb-1"><input type="password" id="regPassword" placeholder="Password (min 6 chars)" required></div>
+            <button class="btn" style="width:100%;">Register</button>
+          </form>
+        </div>
+      `;
+    }
+
+    function renderCreateEdit(data) {
+      const b = data || { title:'', category:'Technology', image:'', description:'', content:'', tags:'' };
+      const isEdit = !!data?.id;
+      const cats = ['Technology','Programming','AI','Business','Education','Lifestyle','Travel'];
+      return `
+        <div class="glass" style="max-width:700px;margin:2rem auto;padding:2rem;">
+          <h2>${isEdit ? 'Edit' : 'New'} Blog Post</h2>
+          <form id="blogForm">
+            <input type="hidden" id="blogId" value="${b.id||''}">
+            <div class="mb-1"><input type="text" id="blogTitle" placeholder="Blog title" value="${b.title||''}" required></div>
+            <div class="mb-1"><select id="blogCategory">${cats.map(c=>`<option value="${c}" ${b.category===c?'selected':''}>${c}</option>`).join('')}</select></div>
+            <div class="mb-1"><input type="text" id="blogImage" placeholder="Image URL" value="${b.image||''}"></div>
+            <div class="mb-1"><input type="text" id="blogDesc" placeholder="Short description" value="${b.description||''}"></div>
+            <div class="mb-1"><textarea id="blogContent" rows="6" placeholder="Full content" required>${b.content||''}</textarea></div>
+            <div class="mb-1"><input type="text" id="blogTags" placeholder="Tags (comma separated)" value="${(b.tags||[]).join(', ')}"></div>
+            <div class="flex">
+              <button class="btn" type="submit">${isEdit ? 'Update' : 'Publish'}</button>
+              <button class="btn btn-outline" type="button" id="cancelEdit">Cancel</button>
+            </div>
+          </form>
+        </div>
+      `;
+    }
+
+    function renderDashboard() {
+      const user = currentUserObj();
+      if (!user) return '<p>Please login</p>';
+      const myBlogs = getBlogs().filter(b=>b.authorId===user.id);
+      const myComments = getComments().filter(c=>c.userId===user.id);
+      return `
+        <h2><i class="fas fa-user-circle"></i> Dashboard</h2>
+        <div class="card"><p><strong>${user.name}</strong> (${user.email})</p></div>
+        <div class="grid-2 mt-2">
+          <div><h3>My Posts (${myBlogs.length})</h3>${myBlogs.map(b=>`<div class="card" style="margin:0.5rem 0;"><strong>${b.title}</strong> <button class="btn btn-outline editBlogBtn" data-id="${b.id}">Edit</button> <button class="btn btn-danger deleteBlogBtn" data-id="${b.id}">Delete</button></div>`).join('')}</div>
+          <div><h3>My Comments</h3>${myComments.map(c=>`<div class="comment"><strong>${c.username}</strong>: ${c.text} <br><small>${new Date(c.date).toLocaleString()}</small></div>`).join('')}</div>
+        </div>
+      `;
+    }
+
+    function renderAdmin() {
+      const users = getUsers();
+      const blogs = getBlogs();
+      const comments = getComments();
+      return `
+        <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+        <div class="grid-3 mt-2">
+          <div class="card"><h3>👥 Users</h3><p>${users.length}</p></div>
+          <div class="card"><h3>📝 Blogs</h3><p>${blogs.length}</p></div>
+          <div class="card"><h3>💬 Comments</h3><p>${comments.length}</p></div>
+        </div>
+        <h3 class="mt-2">Manage Users</h3>
+        ${users.map(u=>`<div class="card" style="margin:0.4rem 0;display:flex;justify-content:space-between;"><span>${u.name} (${u.email}) ${u.role}</span> ${u.role!=='admin'?`<button class="btn btn-danger deleteUserBtn" data-id="${u.id}">Delete</button>`:''}</div>`).join('')}
+        <h3 class="mt-2">All Blogs</h3>
+        ${blogs.map(b=>`<div class="card" style="margin:0.4rem 0;display:flex;justify-content:space-between;"><span>${b.title} by ${b.authorName}</span> <button class="btn btn-danger adminDeleteBlogBtn" data-id="${b.id}">Delete</button></div>`).join('')}
+      `;
+    }
+
+    function renderBlogDetail(blogId) {
+      const blog = findBlog(blogId);
+      if (!blog) return '<p>Blog not found</p>';
+      const comments = getComments().filter(c=>c.blogId===blogId);
+      const likes = getLikes().filter(l=>l.blogId===blogId);
+      const isLiked = currentUser ? likes.some(l=>l.userId===currentUser.id) : false;
+      return `
+        <div class="card">
+          <h1>${blog.title}</h1>
+          <div class="meta"><span><i class="fas fa-user"></i> ${blog.authorName}</span><span><i class="fas fa-calendar"></i> ${new Date(blog.date).toLocaleDateString()}</span><span class="tag">${blog.category}</span></div>
+          <img src="${blog.image || 'https://picsum.photos/seed/default/800/400'}" style="border-radius:20px;margin:1rem 0;max-height:400px;width:100%;object-fit:cover;">
+          <p>${blog.content}</p>
+          <div class="flex"><span class="tag"><i class="fas fa-tags"></i> ${(blog.tags||[]).join(', ')}</span></div>
+          <div class="flex mt-2">
+            <button class="btn ${isLiked?'btn-outline':''}" id="likeBtn" data-id="${blog.id}"><i class="fas fa-heart"></i> ${likes.length}</button>
+            <button class="btn btn-outline" id="bookmarkBtn" data-id="${blog.id}"><i class="fas fa-bookmark"></i></button>
+            <button class="btn btn-outline" onclick="navigator.share?.({title:'${blog.title}',text:'${blog.description}',url:location.href})"><i class="fas fa-share-alt"></i></button>
+          </div>
+          <hr>
+          <h3>Comments</h3>
+          ${currentUser ? `<div><textarea id="newComment" rows="2" placeholder="Write comment..."></textarea><button class="btn" id="postCommentBtn" data-id="${blog.id}">Post</button></div>` : '<p>Login to comment</p>'}
+          ${comments.map(c=>`<div class="comment"><strong>${c.username}</strong> <small>${new Date(c.date).toLocaleString()}</small><br>${c.text} ${currentUser && (currentUser.id===c.userId || currentUser.role==='admin') ? `<div class="comment-actions"><button class="editCommentBtn" data-id="${c.id}">Edit</button> <button class="deleteCommentBtn" data-id="${c.id}">Delete</button></div>`:''}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    // ##############################################
+    //  NAV & EVENT BINDING
+    // ##############################################
+    function updateNav() {
+      const user = currentUserObj();
+      const authLinks = document.getElementById('authLinks');
+      const userBadge = document.getElementById('userBadge');
+      const adminLink = document.getElementById('adminLink');
+      const display = document.getElementById('currentUserDisplay');
+      if (user) {
+        authLinks.classList.add('hidden');
+        userBadge.classList.remove('hidden');
+        display.textContent = user.name;
+        if (user.role === 'admin') adminLink.classList.remove('hidden');
+        else adminLink.classList.add('hidden');
+      } else {
+        authLinks.classList.remove('hidden');
+        userBadge.classList.add('hidden');
+        adminLink.classList.add('hidden');
+      }
+    }
+
+    function attachEventListeners() {
+      // Navigation
+      document.querySelectorAll('[data-page]').forEach(el=>{
+        el.onclick = (e) => {
+          e.preventDefault();
+          const page = el.dataset.page;
+          if (page === 'login' && currentUser) { toast('Already logged in'); return; }
+          if (page === 'register' && currentUser) { toast('Already logged in'); return; }
+          if (page === 'admin' && (!currentUser || currentUserObj()?.role!=='admin')) { toast('Access denied'); return; }
+          render(page);
+        };
+      });
+
+      // search
+      const searchBtn = document.getElementById('searchBtn');
+      if (searchBtn) searchBtn.onclick = ()=>{
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = getBlogs().filter(b=>b.title.toLowerCase().includes(q) || b.authorName.toLowerCase().includes(q) || b.category.toLowerCase().includes(q));
+        const container = document.getElementById('pageContent');
+        container.innerHTML = `<h2>Search results</h2><div class="grid-3">${filtered.map(b=>blogCard(b)).join('')}</div>`;
+        attachEventListeners();
+      };
+
+      // category filter
+      document.querySelectorAll('[data-cat]').forEach(el=>{
+        el.onclick = ()=>{
+          const cat = el.dataset.cat;
+          const filtered = getBlogs().filter(b=>b.category===cat);
+          const container = document.getElementById('pageContent');
+          container.innerHTML = `<h2>${cat}</h2><div class="grid-3">${filtered.map(b=>blogCard(b)).join('')}</div>`;
+          attachEventListeners();
+        };
+      });
+
+      // read more
+      document.querySelectorAll('.readMoreBtn').forEach(el=>{
+        el.onclick = ()=> render('blogDetail', el.dataset.id);
+      });
+
+      // login
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) loginForm.onsubmit = (e)=>{
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const user = findUser(email);
+        if (!user || user.password !== password) { toast('Invalid credentials','error'); return; }
+        currentUser = { id:user.id, email:user.email, name:user.name, role:user.role };
+        localStorage.setItem('session', JSON.stringify(currentUser));
+        toast('Welcome '+user.name);
+        render('home');
+      };
+
+      // register
+      const regForm = document.getElementById('registerForm');
+      if (regForm) regForm.onsubmit = (e)=>{
+        e.preventDefault();
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        if (!email.includes('@')) { toast('Invalid email','error'); return; }
+        if (password.length<6) { toast('Password min 6 chars','error'); return; }
+        if (findUser(email)) { toast('User exists','error'); return; }
+        const users = getUsers();
+        users.push({ id:'u'+Date.now(), name, email, password, role:'user' });
+        saveUsers(users);
+        toast('Registered! Please login.');
+        render('login');
+      };
+
+      // logout
+      document.getElementById('logoutBtn')?.addEventListener('click', ()=>{
+        currentUser = null;
+        localStorage.removeItem('session');
+        toast('Logged out');
+        render('home');
+      });
+
+      // theme toggle
+      document.getElementById('themeToggle')?.addEventListener('click', ()=>{
+        document.body.classList.toggle('dark');
+        const icon = document.querySelector('#themeToggle i');
+        icon.className = document.body.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+      });
+
+      // create/edit blog
+      const blogForm = document.getElementById('blogForm');
+      if (blogForm) blogForm.onsubmit = (e)=>{
+        e.preventDefault();
+        const id = document.getElementById('blogId').value;
+        const title = document.getElementById('blogTitle').value.trim();
+        const category = document.getElementById('blogCategory').value;
+        const image = document.getElementById('blogImage').value.trim();
+        const description = document.getElementById('blogDesc').value.trim();
+        const content = document.getElementById('blogContent').value.trim();
+        const tags = document.getElementById('blogTags').value.split(',').map(s=>s.trim()).filter(Boolean);
+        if (!title || !content) { toast('Title and content required','error'); return; }
+        const user = currentUserObj();
+        if (!user) { toast('Login required','error'); return; }
+        const blogs = getBlogs();
+        if (id) {
+          const idx = blogs.findIndex(b=>b.id===id);
+          if (idx>-1) { blogs[idx] = {...blogs[idx], title, category, image, description, content, tags }; saveBlogs(blogs); toast('Updated!'); }
+        } else {
+          const newBlog = { id:'b'+Date.now(), title, category, image, description, content, tags, authorId:user.id, authorName:user.name, date:new Date().toISOString(), likes:0 };
+          blogs.push(newBlog); saveBlogs(blogs); toast('Published!');
+        }
+        render('home');
+      };
+
+      // cancel edit
+      document.getElementById('cancelEdit')?.addEventListener('click', ()=> render('home'));
+
+      // edit blog from dashboard
+      document.querySelectorAll('.editBlogBtn').forEach(el=>{
+        el.onclick = ()=>{
+          const blog = findBlog(el.dataset.id);
+          if (blog) render('edit', blog);
+        };
+      });
+
+      // delete blog
+      document.querySelectorAll('.deleteBlogBtn, .adminDeleteBlogBtn').forEach(el=>{
+        el.onclick = ()=>{
+          if (!confirm('Delete blog?')) return;
+          let blogs = getBlogs().filter(b=>b.id!==el.dataset.id);
+          saveBlogs(blogs);
+          toast('Deleted');
+          render(currentPage);
+        };
+      });
+
+      // delete user (admin)
+      document.querySelectorAll('.deleteUserBtn').forEach(el=>{
+        el.onclick = ()=>{
+          if (!confirm('Delete user?')) return;
+          let users = getUsers().filter(u=>u.id!==el.dataset.id);
+          saveUsers(users);
+          toast('User deleted');
+          render('admin');
+        };
+      });
+
+      // like
+      document.getElementById('likeBtn')?.addEventListener('click', function() {
+        if (!currentUser) { toast('Login to like','error'); return; }
+        let likes = getLikes();
+        const exists = likes.find(l=>l.blogId===this.dataset.id && l.userId===currentUser.id);
+        if (exists) likes = likes.filter(l=>l!==exists);
+        else likes.push({ blogId:this.dataset.id, userId:currentUser.id });
+        saveLikes(likes);
+        render('blogDetail', this.dataset.id);
+      });
+
+      // comment
+      document.getElementById('postCommentBtn')?.addEventListener('click', function() {
+        if (!currentUser) { toast('Login to comment','error'); return; }
+        const text = document.getElementById('newComment').value.trim();
+        if (!text) { toast('Empty comment','error'); return; }
+        const comments = getComments();
+        comments.push({ id:'c'+Date.now(), blogId:this.dataset.id, userId:currentUser.id, username:currentUser.name, text, date:new Date().toISOString(), parentId:null });
+        saveComments(comments);
+        toast('Comment added');
+        render('blogDetail', this.dataset.id);
+      });
+
+      // delete comment
+      document.querySelectorAll('.deleteCommentBtn').forEach(el=>{
+        el.onclick = ()=>{
+          if (!confirm('Delete comment?')) return;
+          let comments = getComments().filter(c=>c.id!==el.dataset.id);
+          saveComments(comments);
+          toast('Comment deleted');
+          render('blogDetail', document.querySelector('.card')?.dataset?.id || '');
+        };
+      });
+
+      // edit comment (simplified)
+      document.querySelectorAll('.editCommentBtn').forEach(el=>{
+        el.onclick = ()=>{
+          const newText = prompt('Edit comment:');
+          if (!newText) return;
+          let comments = getComments();
+          const c = comments.find(cc=>cc.id===el.dataset.id);
+          if (c) { c.text = newText; saveComments(comments); toast('Updated'); render('blogDetail', c.blogId); }
+        };
+      });
+
+      // back to top
+      window.onscroll = ()=>{
+        const btn = document.getElementById('backTop');
+        if (window.scrollY>300) btn.classList.add('show');
+        else btn.classList.remove('show');
+      };
+      document.getElementById('backTop')?.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
+
+      // mobile menu
+      document.getElementById('menuToggle')?.addEventListener('click', ()=>{
+        document.getElementById('navLinks').classList.toggle('open');
+      });
+    }
+
+    // ##############################################
+    //  INIT
+    // ##############################################
+    (function init() {
+      seedData();
+      // restore session
+      const session = localStorage.getItem('session');
+      if (session) {
+        try {
+          const data = JSON.parse(session);
+          const user = findUser(data.email);
+          if (user && user.password === data.password) {
+            currentUser = { id:user.id, email:user.email, name:user.name, role:user.role };
+          }
+        } catch(e) {}
+      }
+      render('home');
+    })();
+  </script>
+</body>
+</html>
